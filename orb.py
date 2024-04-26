@@ -5,6 +5,11 @@ This script is used to detect the keypoints and descriptors of an image using th
 Authors: Alberto Castro Villasana , Ana Bárbara Quintero, Héctor Camacho Zamora
 Organisation: UDEM
 First created on Friday 23 April 2024
+
+Usage example:
+    python3 orb.py --image1 images/Mty1.png --image2 images/Mty2.png
+
+
 """
 
 # Importing the necessary libraries
@@ -25,7 +30,7 @@ def parse_args():
     parser.add_argument('--image2', type=str, help='Path to the second image.')
     return parser.parse_args()
 
-def load_and_resize_image(path, scale=0.4):
+def load_and_resize_image(path, scale=0.7):
     """
     Load an image from a file and resize it.
     
@@ -71,7 +76,7 @@ def match_features(desc1, desc2):
     matches = bf.knnMatch(desc1, desc2, k=2) # Match descriptors of the two images
     good_matches = [] # List to store good matches
     for m, n in matches: # Apply ratio test
-        if m.distance < 0.5 * n.distance: # If the distance is less than 0.5 times the next closest distance
+        if m.distance < 0.7 * n.distance: # If the distance is less than 0.5 times the next closest distance
             good_matches.append([m])
     return good_matches
 
@@ -105,7 +110,11 @@ def display_images(images):
             break
     cv2.destroyAllWindows()
 
-if __name__ == '__main__':
+# pipeline function
+def run_pipeline():
+    """
+    Run the ORB feature matching pipeline.
+    """
     args = parse_args() # Parse command line arguments
     image1 = load_and_resize_image(args.image1) # Load and resize the image
     image2 = load_and_resize_image(args.image2)
@@ -114,3 +123,6 @@ if __name__ == '__main__':
     good_matches = match_features(descriptors1, descriptors2) # Match features
     matched_image = draw_matches(image1, keypoints1, image2, keypoints2, good_matches) 
     display_images({'image1': image1, 'image2': image2, 'Matches': matched_image}) # Display the images
+
+if __name__ == '__main__':
+    run_pipeline() # Run the pipeline
